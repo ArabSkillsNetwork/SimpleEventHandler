@@ -4,10 +4,10 @@ Simple library to handle events for PocketMIne-MP
 # Usage
 - Create Handler:
 ```php
-$handler = SimpleEventHandler::createHandler($this, PlayerChatEvent::class, function (PlayerChatEvent $event){
+$handler = SimpleEventHandler::createHandler(plugin: $this, eventClass: PlayerChatEvent::class, callback: function (PlayerChatEvent|BlockBreakEvent $event){
     $player = $event->getPlayer();
     // TODO
-});
+}, priority: EventPriority::NORMAL, handleCancelled: false);
 ```
 
 - Once:
