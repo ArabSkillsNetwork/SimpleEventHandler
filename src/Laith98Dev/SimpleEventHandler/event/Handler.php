@@ -76,8 +76,7 @@ class Handler
     {
         return $this->callback;
     }
-
-    // TODO: i need to make this more easier like this Filtter::fromPlayerName("Laith98Dev")
+    
     public function setFilter(?Filter $handler = null): self
     {
         $this->filter = $handler;
