@@ -11,12 +11,12 @@ $handler = SimpleEventHandler::createHandler(plugin: $this, eventClass: PlayerCh
 ```
 
 - Once:
-This will make the event work once.
+    - This will make the event work once.
 ```php
 $handler->once();
 ```
 - Filter
-You can filter the event by specific things like player name, block type, specific message, and specific item.
+    - You can filter the event by specific things like player name, block type, specific message, and specific item.
 ```php
 use Laith98Dev\SimpleEventHandler\event\Filter;
 
@@ -28,12 +28,12 @@ use Laith98Dev\SimpleEventHandler\event\Filter;
 $handler->setFilter(Filter::fromPlayer("Laith98Dev"));
 ```
 - Bindings
-You can use the bindWith` function to bind many events together.
+    - You can use the bindWith` function to bind many events together.
 ```php
 $handler->bindWith($eventClass);
 ```
 - Kill
-This function will kill the handler.
+    - This function will kill the handler.
 ```php
 $handler->kill();
 ```
