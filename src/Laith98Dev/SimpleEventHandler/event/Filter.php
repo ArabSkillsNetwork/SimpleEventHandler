@@ -73,12 +73,6 @@ class Filter
     public function prepare(Event $event): bool
     {
         $need = 0;
-        // $need = count(array_filter([
-        //     $this->playerName,
-        //     $this->message,
-        //     $this->blockType,
-        // ], fn($item) => $item !== null));
-
         $count = 0;
 
         if($event instanceof PlayerEvent && ($name = $this->playerName) !== null){
@@ -120,7 +114,7 @@ class Filter
 
             if($item->equals($eventItem)) $count++;
         }
-        
+
         return $count === $need;
     }
 }

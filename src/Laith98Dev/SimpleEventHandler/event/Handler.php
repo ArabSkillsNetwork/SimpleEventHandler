@@ -29,7 +29,6 @@ class Handler
         $this->registeredListener = Server::getInstance()->getPluginManager()->registerEvent(
             $eventClass,
             function ($event) use ($callback){
-                $start = hrtime(true);
                 if($this->filter !== null){
                     if(!$this->filter->prepare($event)){
                         return;
@@ -41,9 +40,6 @@ class Handler
                 if($this->isOnce()){
                     $this->kill();
                 }
-
-                $end = hrtime(true);
-                echo "Finshed in " . ($end - $start) . " second(s) \n";
             },
             $priority,
             $plugin,
