@@ -1,5 +1,26 @@
 <?php
 
+/*
+ *
+ *  _           _ _   _    ___   ___  _____
+ * | |         (_) | | |  / _ \ / _ \|  __ \
+ * | |     __ _ _| |_| |_| (_) | (_) | |  | | _____   __
+ * | |    / _` | | __| '_ \__, |> _ <| |  | |/ _ \ \ / /
+ * | |___| (_| | | |_| | | |/ /| (_) | |__| |  __/\ V /
+ * |______\__,_|_|\__|_| |_/_/  \___/|_____/ \___| \_/
+ *
+ * Copyright (c) Laith98Dev
+ *
+ * Youtube: Laith Youtuber
+ * Discord: Laith98Dev#0695 or @u.oo
+ * Github: Laith98Dev
+ * Email: spt.laithdev@gamil.com
+ * Donate: https://paypal.me/Laith113
+ *
+ */
+
+declare(strict_types=1);
+
 namespace Laith98Dev\SimpleEventHandler\event;
 
 use Closure;
@@ -10,129 +31,129 @@ use pocketmine\Server;
 
 class Handler
 {
-    private ?RegisteredListener $registeredListener = null;
-    
-    /** @var Bind[] */
-    private array $bindings = [];
+	private ?RegisteredListener $registeredListener = null;
 
-    private ?Filter $filter = null;
+	/** @var Bind[] */
+	private array $bindings = [];
 
-    private bool $isOnce = false;
+	private ?Filter $filter = null;
 
-    public function __construct(
-        private Plugin $plugin,
-        private string $eventClass,
-        private Closure $callback,
-        private int $priority,
-        private bool $handleCancelled
-    ){
-        $this->registeredListener = Server::getInstance()->getPluginManager()->registerEvent(
-            $eventClass,
-            function ($event) use ($callback){
-                if($this->filter !== null){
-                    if(!$this->filter->prepare($event)){
-                        return;
-                    }
-                }
+	private bool $isOnce = false;
 
-                ($callback)($event);
+	public function __construct(
+		private Plugin $plugin,
+		private string $eventClass,
+		private Closure $callback,
+		private int $priority,
+		private bool $handleCancelled
+	){
+		$this->registeredListener = Server::getInstance()->getPluginManager()->registerEvent(
+			$eventClass,
+			function ($event){
+				if($this->filter !== null){
+					if(!$this->filter->prepare($event)){
+						return;
+					}
+				}
 
-                if($this->isOnce()){
-                    $this->kill();
-                }
-            },
-            $priority,
-            $plugin,
-            $handleCancelled
-        );
-    }
+				($this->getCallback())($event, $this);
 
-    public function getPlugin(): Plugin
-    {
-        return $this->plugin;
-    }
+				if($this->isOnce()){
+					$this->kill();
+				}
+			},
+			$priority,
+			$plugin,
+			$handleCancelled
+		);
+	}
 
-    public function getPriority(): int
-    {
-        return $this->priority;
-    }
+	public function getPlugin() : Plugin
+	{
+		return $this->plugin;
+	}
 
-    public function isHandleCancelled(): bool
-    {
-        return $this->handleCancelled;
-    }
+	public function getPriority() : int
+	{
+		return $this->priority;
+	}
 
-    public function isRegistred(): bool
-    {
-        return $this->registeredListener !== null;
-    }
+	public function isHandleCancelled() : bool
+	{
+		return $this->handleCancelled;
+	}
 
-    public function getListener(): ?RegisteredListener
-    {
-        return $this->registeredListener;
-    }
+	public function isRegistred() : bool
+	{
+		return $this->registeredListener !== null;
+	}
 
-    public function getCallback(): Closure
-    {
-        return $this->callback;
-    }
-    
-    public function setFilter(?Filter $handler = null): self
-    {
-        $this->filter = $handler;
-        return $this;
-    }
+	public function getListener() : ?RegisteredListener
+	{
+		return $this->registeredListener;
+	}
 
-    public function getFilter(): ?Filter
-    {
-        return $this->filter;
-    }
+	public function getCallback() : Closure
+	{
+		return $this->callback;
+	}
 
-    public function setOnce(bool $val = true): self
-    {
-        $this->isOnce = $val;
-        return $this;
-    }
+	public function setFilter(?Filter $handler = null) : self
+	{
+		$this->filter = $handler;
+		return $this;
+	}
 
-    public function isOnce(): bool
-    {
-        return $this->isOnce;
-    }
+	public function getFilter() : ?Filter
+	{
+		return $this->filter;
+	}
 
-    public function bindWith(string $eventClass, ?int $priority = null, ?bool $handleCancelled = null): self{
-        if(!$this->isBindWith($eventClass)){
-            $this->bindings[$eventClass] = new Bind(
-                $this,
-                $eventClass,
-                $priority,
-                $handleCancelled
-            );   
-        }
+	public function setOnce(bool $val = true) : self
+	{
+		$this->isOnce = $val;
+		return $this;
+	}
 
-        return $this;
-    }
+	public function isOnce() : bool
+	{
+		return $this->isOnce;
+	}
 
-    public function isBindWith(string $eventClass)
-    {
-        return isset($this->bindings[$eventClass]);
-    }
+	public function bindWith(string $eventClass, ?int $priority = null, ?bool $handleCancelled = null) : self{
+		if(!$this->isBindWith($eventClass)){
+			$this->bindings[$eventClass] = new Bind(
+				$this,
+				$eventClass,
+				$priority,
+				$handleCancelled
+			);
+		}
 
-    public function unBindFrom(string $eventClass)
-    {
-        if($this->isBindWith($eventClass)){
-            $bind = $this->bindings[$eventClass];
-            $bind->getHandler()->kill();
+		return $this;
+	}
 
-            unset($this->bindings[$eventClass], $bind);
-        }
-    }
+	public function isBindWith(string $eventClass)
+	{
+		return isset($this->bindings[$eventClass]);
+	}
 
-    public function kill(): void
-    {
-        if(!$this->isRegistred()){
-            return;
-        }
+	public function unBindFrom(string $eventClass)
+	{
+		if($this->isBindWith($eventClass)){
+			$bind = $this->bindings[$eventClass];
+			$bind->getHandler()->kill();
 
-        HandlerListManager::global()->getListFor($this->eventClass)->unregister($this->getListener());
-    }
+			unset($this->bindings[$eventClass], $bind);
+		}
+	}
+
+	public function kill() : void
+	{
+		if(!$this->isRegistred()){
+			return;
+		}
+
+		HandlerListManager::global()->getListFor($this->eventClass)->unregister($this->getListener());
+	}
 }
